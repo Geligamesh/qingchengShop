@@ -4,9 +4,9 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.qingcheng.entity.PageResult;
 import com.qingcheng.entity.Result;
 import com.qingcheng.pojo.order.Order;
+import com.qingcheng.pojo.order.OrderInfo;
 import com.qingcheng.service.order.OrderService;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.*;
 
 @RestController
@@ -60,4 +60,14 @@ public class OrderController {
         return new Result();
     }
 
+    @GetMapping("findOrderInfo")
+    public OrderInfo findOrderInfoById(String orderId) {
+        return orderService.findOrderInfoById(orderId);
+    }
+
+    @PostMapping("batchSend")
+    public Result batchSend(List<Order> orders) {
+        orderService.batchSend(orders);
+        return new Result();
+    }
 }

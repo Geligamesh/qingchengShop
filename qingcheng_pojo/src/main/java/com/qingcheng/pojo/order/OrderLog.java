@@ -13,9 +13,6 @@ public class OrderLog implements Serializable{
 	@Id
 	private String id;//ID
 
-
-	
-
 	private String operater;//操作员
 
 	private java.util.Date operateTime;//操作时间
@@ -30,7 +27,7 @@ public class OrderLog implements Serializable{
 
 	private String remarks;//备注
 
-	
+
 	public String getId() {
 		return id;
 	}
@@ -88,5 +85,5 @@ public class OrderLog implements Serializable{
 	}
 
 
-	
+
 }

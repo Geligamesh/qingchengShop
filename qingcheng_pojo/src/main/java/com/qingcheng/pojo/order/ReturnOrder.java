@@ -13,9 +13,6 @@ public class ReturnOrder implements Serializable{
 	@Id
 	private Long id;//服务单号
 
-
-	
-
 	private Long orderId;//订单号
 
 	private java.util.Date applyTime;//申请时间
@@ -48,7 +45,7 @@ public class ReturnOrder implements Serializable{
 
 	private Integer adminId;//管理员id
 
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -169,5 +166,5 @@ public class ReturnOrder implements Serializable{
 	}
 
 
-	
+
 }

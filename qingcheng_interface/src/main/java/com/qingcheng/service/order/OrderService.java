@@ -1,6 +1,7 @@
 package com.qingcheng.service.order;
 import com.qingcheng.entity.PageResult;
 import com.qingcheng.pojo.order.Order;
+import com.qingcheng.pojo.order.OrderInfo;
 
 import java.util.*;
 
@@ -9,27 +10,24 @@ import java.util.*;
  */
 public interface OrderService {
 
+    List<Order> findAll();
 
-    public List<Order> findAll();
+    PageResult<Order> findPage(int page, int size);
 
+    List<Order> findList(Map<String,Object> searchMap);
 
-    public PageResult<Order> findPage(int page, int size);
+    PageResult<Order> findPage(Map<String,Object> searchMap,int page, int size);
 
+    Order findById(String id);
 
-    public List<Order> findList(Map<String,Object> searchMap);
+    void add(Order order);
 
+    void update(Order order);
 
-    public PageResult<Order> findPage(Map<String,Object> searchMap,int page, int size);
+    void delete(String id);
 
+    OrderInfo findOrderInfoById(String orderId);
 
-    public Order findById(String id);
-
-    public void add(Order order);
-
-
-    public void update(Order order);
-
-
-    public void delete(String id);
+    void batchSend(List<Order> orders);
 
 }

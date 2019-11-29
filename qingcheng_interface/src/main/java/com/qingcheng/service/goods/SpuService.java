@@ -10,9 +10,7 @@ import java.util.*;
  */
 public interface SpuService {
 
-
     public List<Spu> findAll();
-
 
     public PageResult<Spu> findPage(int page, int size);
 
@@ -35,4 +33,17 @@ public interface SpuService {
 
     Goods findGoodsById(String spuId);
 
+    void audit(String id,String status,String message);
+
+    void pull(String id);
+
+    void put(String id);
+
+    int putMany(String[] ids);
+
+    int pullMany(String[] ids);
+
+    void restore(String id);
+
+    void realDelete(String id);
 }

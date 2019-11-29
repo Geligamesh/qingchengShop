@@ -13,9 +13,6 @@ public class Order implements Serializable{
 	@Id
 	private String id;//订单id
 
-
-	
-
 	private Integer totalNum;//数量合计
 
 	private Integer totalMoney;//金额合计
@@ -68,7 +65,7 @@ public class Order implements Serializable{
 
 	private String isDelete;//是否删除
 
-	
+
 	public String getId() {
 		return id;
 	}
@@ -259,5 +256,5 @@ public class Order implements Serializable{
 	}
 
 
-	
+
 }

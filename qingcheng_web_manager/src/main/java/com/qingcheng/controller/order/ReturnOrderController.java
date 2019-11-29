@@ -60,4 +60,19 @@ public class ReturnOrderController {
         return new Result();
     }
 
+    @GetMapping("agreeRefund")
+    public Result agreeRefund(String id,Integer money) {
+        //获取当前登录人ID
+        Integer adminId = 0;
+        returnOrderService.agreeRefund(id, money, adminId);
+        return new Result();
+    }
+
+    @GetMapping("rejectRefund")
+    public Result rejectRefund(String id,String remark) {
+        Integer adminId = 0;
+        returnOrderService.rejectRefund(id, remark,adminId);
+        return new Result();
+    }
+
 }
