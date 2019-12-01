@@ -2,20 +2,19 @@ package com.qingcheng.service.impl;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.qingcheng.dao.OrderConfigMapper;
 import com.qingcheng.dao.OrderItemMapper;
 import com.qingcheng.dao.OrderLogMapper;
 import com.qingcheng.dao.OrderMapper;
 import com.qingcheng.entity.PageResult;
-import com.qingcheng.pojo.order.Order;
-import com.qingcheng.pojo.order.OrderInfo;
-import com.qingcheng.pojo.order.OrderItem;
-import com.qingcheng.pojo.order.OrderLog;
+import com.qingcheng.pojo.order.*;
 import com.qingcheng.service.order.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import tk.mybatis.mapper.entity.Example;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -27,6 +26,8 @@ public class OrderServiceImpl implements OrderService {
     private OrderItemMapper orderItemMapper;
     @Autowired
     private OrderLogMapper orderLogMapper;
+    @Autowired
+    private OrderConfigMapper orderConfigMapper;
 
     private Logger log = LoggerFactory.getLogger(OrderServiceImpl.class);
 
@@ -47,7 +48,7 @@ public class OrderServiceImpl implements OrderService {
     public PageResult<Order> findPage(int page, int size) {
         PageHelper.startPage(page,size);
         Page<Order> orders = (Page<Order>) orderMapper.selectAll();
-        return new PageResult<Order>(orders.getTotal(),orders.getResult());
+        return new PageResult<>(orders.getTotal(), orders.getResult());
     }
 
     /**
@@ -171,6 +172,53 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
+     * 订单超时处理逻辑
+     */
+    public void orderTimeOutLogic() {
+        //订单超时未付款，自动关闭
+        //查询超时时间
+        OrderConfig orderConfig = orderConfigMapper.selectByPrimaryKey(1);
+        //超时时间 60分钟
+        Integer orderTimeout = orderConfig.getOrderTimeout();
+        LocalDateTime localDateTime = LocalDateTime.now().minusMinutes(orderTimeout);
+
+        Example example = new Example(Order.class);
+        Example.Criteria criteria = example.createCriteria();
+
+        criteria.andLessThan("createTime", localDateTime);
+        //未付款的订单
+        criteria.andEqualTo("orderStatus", "0");
+        //未被删除的订单
+        criteria.andEqualTo("isDelete", "0");
+
+        List<Order> orders = orderMapper.selectByExample(example);
+        orders.forEach(order -> {
+            //记录订单变动日志
+            OrderLog orderLog = new OrderLog();
+            //系统
+            orderLog.setOperater("system");
+            //操作时间
+            orderLog.setOperateTime(new Date());
+            //将订单设置成已关闭
+            orderLog.setOrderStatus("4");
+            orderLog.setPayStatus(order.getPayStatus());
+            orderLog.setConsignStatus(order.getConsignStatus());
+            orderLog.setRemarks("超时订单，系统自动关闭");
+            orderLog.setOrderId(order.getId());
+            orderLogMapper.insertSelective(orderLog);
+            //订单状态为已关闭
+            order.setOrderStatus("4");
+            //关闭时间
+            order.setCloseTime(new Date());
+            //将订单设置成已删除
+            order.setIsDelete("1");
+
+            orderMapper.updateByPrimaryKeySelective(order);
+
+        });
+    }
+
+    /**
      * 构建查询条件
      * @param searchMap
      * @return
@@ -273,5 +321,4 @@ public class OrderServiceImpl implements OrderService {
         }
         return example;
     }
-
 }
