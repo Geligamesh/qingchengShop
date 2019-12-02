@@ -121,7 +121,6 @@ public class AdminServiceImpl implements AdminService {
             if(searchMap.get("id")!=null ){
                 criteria.andEqualTo("id",searchMap.get("id"));
             }
-
         }
         return example;
     }

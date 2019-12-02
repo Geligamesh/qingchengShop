@@ -35,7 +35,7 @@ public class LoginLogServiceImpl implements LoginLogService {
     public PageResult<LoginLog> findPage(int page, int size) {
         PageHelper.startPage(page,size);
         Page<LoginLog> loginLogs = (Page<LoginLog>) loginLogMapper.selectAll();
-        return new PageResult<LoginLog>(loginLogs.getTotal(),loginLogs.getResult());
+        return new PageResult<>(loginLogs.getTotal(), loginLogs.getResult());
     }
 
     /**
@@ -59,7 +59,7 @@ public class LoginLogServiceImpl implements LoginLogService {
         PageHelper.startPage(page,size);
         Example example = createExample(searchMap);
         Page<LoginLog> loginLogs = (Page<LoginLog>) loginLogMapper.selectByExample(example);
-        return new PageResult<LoginLog>(loginLogs.getTotal(),loginLogs.getResult());
+        return new PageResult<>(loginLogs.getTotal(), loginLogs.getResult());
     }
 
     /**
@@ -76,7 +76,7 @@ public class LoginLogServiceImpl implements LoginLogService {
      * @param loginLog
      */
     public void add(LoginLog loginLog) {
-        loginLogMapper.insert(loginLog);
+        loginLogMapper.insertSelective(loginLog);
     }
 
     /**
@@ -106,7 +106,7 @@ public class LoginLogServiceImpl implements LoginLogService {
         if(searchMap!=null){
             // login_name
             if(searchMap.get("loginName")!=null && !"".equals(searchMap.get("loginName"))){
-                criteria.andLike("loginName","%"+searchMap.get("loginName")+"%");
+                criteria.andEqualTo("loginName",searchMap.get("loginName"));
             }
             // ip
             if(searchMap.get("ip")!=null && !"".equals(searchMap.get("ip"))){
@@ -120,7 +120,6 @@ public class LoginLogServiceImpl implements LoginLogService {
             if(searchMap.get("location")!=null && !"".equals(searchMap.get("location"))){
                 criteria.andLike("location","%"+searchMap.get("location")+"%");
             }
-
             // id
             if(searchMap.get("id")!=null ){
                 criteria.andEqualTo("id",searchMap.get("id"));

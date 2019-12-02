@@ -12,21 +12,13 @@ public class LoginLog implements Serializable{
 
 	@Id
 	private Integer id;//id
-
-
-	
-
 	private String loginName;//login_name
-
 	private String ip;//ip
-
 	private String browserName;//browser_name
-
 	private String location;//地区
-
 	private java.util.Date loginTime;//登录时间
 
-	
+
 	public Integer getId() {
 		return id;
 	}
@@ -70,5 +62,5 @@ public class LoginLog implements Serializable{
 	}
 
 
-	
+
 }

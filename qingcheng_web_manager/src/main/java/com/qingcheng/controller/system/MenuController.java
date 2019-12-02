@@ -36,6 +36,11 @@ public class MenuController {
         return  menuService.findPage(searchMap,page,size);
     }
 
+    @GetMapping("findMenu")
+    public List<Map> findMenu() {
+        return menuService.findAllMenu();
+    }
+
     @GetMapping("/findById")
     public Menu findById(String id){
         return menuService.findById(id);
