@@ -34,7 +34,7 @@ public class ModifyController {
             throw new RuntimeException("新密码不能为空");
         }
         if (StringUtils.isBlank(rePassword)) {
-            throw new RuntimeException("请输入确认密码");
+            throw new RuntimeException("确认密码不能为空");
         }
         if (!StringUtils.equals(newPassword, rePassword)) {
             throw new RuntimeException("两次密码不正确，请重新输入");
@@ -44,6 +44,7 @@ public class ModifyController {
         searchMap.put("loginName", loginName);
         searchMap.put("status", "1");
         List<Admin> adminList = adminService.findList(searchMap);
+
         Admin admin = adminList.get(0);
         String password = admin.getPassword();
         //检验是否跟数据库中的密码匹配
