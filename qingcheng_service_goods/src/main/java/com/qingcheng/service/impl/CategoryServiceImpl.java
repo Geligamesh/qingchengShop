@@ -8,7 +8,8 @@ import com.qingcheng.pojo.goods.Category;
 import com.qingcheng.service.goods.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import tk.mybatis.mapper.entity.Example;
-
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public class CategoryServiceImpl implements CategoryService {
     public PageResult<Category> findPage(int page, int size) {
         PageHelper.startPage(page,size);
         Page<Category> categorys = (Page<Category>) categoryMapper.selectAll();
-        return new PageResult<Category>(categorys.getTotal(),categorys.getResult());
+        return new PageResult<>(categorys.getTotal(), categorys.getResult());
     }
 
     /**
@@ -100,6 +101,33 @@ public class CategoryServiceImpl implements CategoryService {
             throw new RuntimeException("存在下级分类删除失败");
         }
         categoryMapper.deleteByPrimaryKey(id);
+    }
+
+    /**
+     * 返回分类树
+     * @return
+     */
+    public List<Map> findCategoryTree() {
+        //查询符合is_show=1
+        Example example = new Example(Category.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("isShow", "1");
+        example.setOrderByClause("seq");
+        List<Category> categories = categoryMapper.selectByExample(example);
+        return findByParentId(categories, 0);
+    }
+
+    private List<Map> findByParentId(List<Category> categories,Integer parentId) {
+        List<Map> mapList = new ArrayList<>();
+        categories.forEach(category -> {
+            if (category.getParentId().equals(parentId)) {
+                 Map<String,Object> map = new HashMap<>();
+                 map.put("name", category.getName());
+                 map.put("menus", findByParentId(categories, category.getId()));
+                 mapList.add(map);
+            }
+        });
+        return mapList;
     }
 
     /**

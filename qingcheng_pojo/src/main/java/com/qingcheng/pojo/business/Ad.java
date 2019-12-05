@@ -13,9 +13,6 @@ public class Ad implements Serializable{
 	@Id
 	private Integer id;//ID
 
-
-	
-
 	private String name;//广告名称
 
 	private String position;//广告位置
@@ -32,7 +29,6 @@ public class Ad implements Serializable{
 
 	private String remarks;//备注
 
-	
 	public Integer getId() {
 		return id;
 	}
@@ -97,5 +93,5 @@ public class Ad implements Serializable{
 	}
 
 
-	
+
 }
