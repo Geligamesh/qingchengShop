@@ -2,6 +2,7 @@ package com.qingcheng.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.qingcheng.pojo.goods.Goods;
 import com.qingcheng.pojo.goods.Sku;
 import com.qingcheng.pojo.goods.Spu;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -54,6 +54,15 @@ public class ItemController {
         //三级分类
         categoryList.add(categoryService.findById(spu.getCategory3Id()).getName());
 
+        Map<String,String> urlMap = new HashMap<>();
+
+        skuList.forEach(sku -> {
+            if ("1".equals(sku.getStatus())) {
+                String specJson = JSON.toJSONString(JSON.parseObject(sku.getSpec()),SerializerFeature.MapSortField);
+                urlMap.put(specJson,sku.getId() + ".html");
+            }
+        });
+
         //2.批量生成sku页面
         skuList.forEach(sku -> {
             //(1)创建大下文和数据模型
@@ -69,8 +78,36 @@ public class ItemController {
             Map paraItems = JSON.parseObject(spu.getParaItems(), Map.class);//参数列表
             dataModel.put("paraItems", paraItems);
 
-            Map specItems = JSON.parseObject(sku.getSpec(), Map.class);//规格列表
+            Map<String,String> specItems = (Map)JSON.parseObject(sku.getSpec(), Map.class);//规格列表,当前sku
             dataModel.put("specItems", specItems);
+            //{"选择套餐":["官方标配"],"颜色":["红色","黑色","蓝色"],"版本":["4GB+64GB","6GB+64GB","4GB+128GB"]}
+            //{"选择套餐":[{option:"官方标配",checked:true}],"颜色":[{option:"红色",checked:true}，{option:"黑色",checked:false}，{option:"蓝色",checked:false}],"版本":["4GB+64GB","6GB+64GB","4GB+128GB"]}
+            //规格和规格选项
+            Map<String,List> specMap = (Map)JSON.parseObject(spu.getSpecItems(), Map.class);
+            for (String key:specMap.keySet()) {
+                List<String> list = specMap.get(key);//["红色","黑色","蓝色"]
+                List<Map> mapList = new ArrayList<>();//新的集合
+                for (String value : list) {
+                    Map map = new HashMap();
+                    map.put("option", value);//规格选项
+
+                    if (specItems.get(key).equals(value)) {
+                        map.put("checked", true);//如果和当前sku的规格相同，就是选中的
+                    }else {
+                        map.put("checked", false);//如果和当前sku的规格不相同，就不选中
+                    }
+                    Map<String,String> spec = (Map)JSON.parseObject(sku.getSpec(), Map.class);//当前的sku
+                    spec.put(key, value);
+                    //SerializerFeature.MapSortField
+                    String specJson = JSON.toJSONString(spec,SerializerFeature.MapSortField);
+                    map.put("url", urlMap.get(specJson));
+
+                    mapList.add(map);
+                }
+                specMap.put(key, mapList);//用新的集合替换原有的集合
+            }
+
+            dataModel.put("specMap", specMap);
 
             context.setVariables(dataModel);
             //(2)准备文件
